@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f7f5f0">
+    <title>MiBalance · Finanzas personales</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <div class="app-shell" id="appShell" hidden>
+        <aside class="sidebar" id="sidebar">
+            <a class="brand" href="#inicio" aria-label="MiBalance, inicio">
+                <span class="brand-mark"><span aria-hidden="true">✳</span></span>
+                <span class="brand-name">mi<span>balance</span></span>
+            </a>
+            <div class="workspace-label">TU ESPACIO</div>
+            <nav class="main-nav" aria-label="Navegación principal">
+                <button class="nav-link active" data-view="overview"><span class="nav-icon">⌂</span>Resumen</button>
+                <button class="nav-link" data-view="transactions"><span class="nav-icon">⇄</span>Movimientos</button>
+                <button class="nav-link" data-view="commitments"><span class="nav-icon">▣</span>Compromisos del mes</button>
+            </nav>
+            <div class="sidebar-bottom">
+                <div class="privacy-card"><span class="privacy-icon">✦</span><div><strong>Tu información, tuya</strong><p>Guardada solo en este navegador.</p></div></div>
+                <div class="backup-actions"><button class="backup-button" id="exportDataButton" type="button"><span>↓</span> Exportar datos</button><button class="backup-button" id="importDataButton" type="button"><span>↑</span> Importar respaldo</button><input id="importDataInput" type="file" accept=".json,application/json" hidden></div>
+                <button class="logout-button" id="logoutButton"><span>↪</span> Bloquear MiBalance</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <button class="menu-button" id="menuButton" aria-label="Abrir menú">☰</button>
+                <div class="breadcrumb">Mi espacio <span>/</span> <strong id="breadcrumbLabel">Resumen</strong></div>
+                <div class="topbar-right"><span class="today-label" id="todayLabel"></span><span class="user-avatar">✳</span></div>
+            </header>
+
+            <section class="view-section active" id="overviewView">
+                <div class="welcome-row">
+                    <div><p class="eyebrow">TUS FINANZAS, MÁS CLARAS</p><h1>Tu dinero, bajo control <span>✦</span></h1><p class="subheading">Un vistazo claro a tus ingresos, gastos y compromisos.</p></div>
+                    <button class="button button-primary" id="addMovementButton"><span>＋</span> Nuevo movimiento</button>
+                </div>
+                <div class="period-toolbar">
+                    <div class="period-tabs" role="tablist" aria-label="Periodo del balance">
+                        <button class="period-tab active" data-period="day">Día</button><button class="period-tab" data-period="week">Semana</button><button class="period-tab" data-period="month">Mes</button>
+                    </div>
+                    <div class="date-control"><button id="previousPeriod" aria-label="Periodo anterior">‹</button><span id="periodLabel"></span><button id="nextPeriod" aria-label="Periodo siguiente">›</button><button class="today-button" id="currentPeriod">Hoy</button></div>
+                </div>
+
+                <div class="summary-grid">
+                    <article class="summary-card balance-card"><div class="card-top"><span>Balance del periodo</span><span class="card-icon balance-icon">↗</span></div><strong class="summary-amount" id="balanceAmount">$0</strong><div class="summary-foot"><span class="balance-dot"></span><span id="balanceCaption">Ingresos menos gastos</span></div><div class="balance-decoration" aria-hidden="true">✳</div></article>
+                    <article class="summary-card"><div class="card-top"><span>Ingresos</span><span class="card-icon income-icon">↙</span></div><strong class="summary-amount" id="incomeAmount">$0</strong><div class="summary-foot"><span class="trend-label positive">＋ Entradas registradas</span></div></article>
+                    <article class="summary-card"><div class="card-top"><span>Gastos</span><span class="card-icon expense-icon">↗</span></div><strong class="summary-amount" id="expenseAmount">$0</strong><div class="summary-foot"><span class="trend-label muted">Cuidados y compras</span></div></article>
+                    <article class="summary-card cats-summary"><div class="card-top"><span>Compromisos del mes</span><span class="card-icon cats-icon">▣</span></div><strong class="summary-amount" id="commitmentAmount">$0</strong><div class="summary-foot"><span class="trend-label muted" id="commitmentCaption">0 pagos pendientes</span></div></article>
+                </div>
+
+                <div class="content-grid">
+                    <article class="panel chart-panel"><div class="panel-heading"><div><h2>Actividad del periodo</h2><p id="chartSubtitle">Ingresos y gastos</p></div><span class="chart-legend"><i class="legend-income"></i>Ingresos <i class="legend-expense"></i>Gastos</span></div><div class="chart" id="activityChart" aria-label="Gráfico de ingresos y gastos"></div></article>
+                    <article class="panel category-panel"><div class="panel-heading"><div><h2>En qué se va</h2><p>Gastos por categoría</p></div><span class="category-sparkle">✳</span></div><div id="categoryBreakdown" class="category-breakdown"></div></article>
+                </div>
+
+                <div class="section-heading"><div><p class="eyebrow">LO MÁS RECIENTE</p><h2>Últimos movimientos</h2></div><button class="text-button" data-goto="transactions">Ver todos <span>→</span></button></div>
+                <div class="panel transaction-panel"><div class="transaction-list" id="recentTransactions"></div><div class="empty-state" id="recentEmpty" hidden><span>✦</span><strong>Aún no hay movimientos</strong><p>Registra el primero para empezar a ver tus finanzas.</p><button class="button button-soft" data-open-modal>＋ Añadir movimiento</button></div></div>
+            </section>
+
+            <section class="view-section" id="transactionsView">
+                <div class="welcome-row page-title-row"><div><p class="eyebrow">ENTRADAS Y SALIDAS</p><h1>Movimientos</h1><p class="subheading">Registra y consulta tus gastos e ingresos personales.</p></div><button class="button button-primary" data-open-modal><span>＋</span> Nuevo movimiento</button></div>
+                <div class="filter-row"><div class="filter-pills"><button class="filter-pill active" data-filter="all">Todos</button><button class="filter-pill" data-filter="expense">Gastos</button><button class="filter-pill" data-filter="income">Ingresos</button></div><select id="categoryFilter" aria-label="Filtrar por categoría"><option value="all">Todas las categorías</option></select></div>
+                <div class="panel transaction-panel full-transactions"><div class="transaction-list" id="allTransactions"></div><div class="empty-state" id="allEmpty" hidden><span>🧾</span><strong>No hay resultados</strong><p>Cuando registres un movimiento aparecerá aquí.</p></div></div>
+            </section>
+
+            <section class="view-section" id="commitmentsView">
+                <div class="welcome-row page-title-row"><div><p class="eyebrow">PAGOS RECURRENTES Y CUENTAS</p><h1>Compromisos del mes</h1><p class="subheading">Ten presentes tus pagos fijos y marca los que ya pagaste.</p></div><button class="button button-primary" id="addCommitmentButton"><span>＋</span> Añadir compromiso</button></div>
+                <div class="commitment-summary" id="commitmentSummary"></div>
+                <div class="commitments-list" id="commitmentsList"></div>
+                <div class="empty-state commitments-empty" id="commitmentsEmpty" hidden><span>▣</span><strong>Aún no tienes compromisos</strong><p>Añade renta, servicios, suscripciones u otros pagos mensuales.</p><button class="button button-primary" data-add-commitment>＋ Añadir compromiso</button></div>
+            </section>
+        </main>
+    </div>
+
+    <div class="login-screen" id="loginScreen">
+        <div class="login-decoration decoration-one">✳</div><div class="login-decoration decoration-two">✦</div>
+        <section class="login-card"><div class="login-brand"><span class="brand-mark"><span aria-hidden="true">✳</span></span><span class="brand-name">mi<span>balance</span></span></div><div class="login-cat-art finance-art" aria-hidden="true"><span class="art-star star-a">✦</span><span class="art-star star-b">＋</span><span class="finance-art-icon">$</span><span class="finance-art-ring"></span></div><p class="eyebrow" id="loginEyebrow">UN ESPACIO PARA TUS FINANZAS</p><h1 id="loginTitle">Tu dinero,<br>más claro cada día.</h1><p class="login-copy" id="loginCopy">Organiza tus gastos, ingresos y compromisos mensuales en un solo lugar.</p><form id="loginForm"><label for="passwordInput" id="passwordLabel">Contraseña</label><div class="password-wrap"><input id="passwordInput" type="password" autocomplete="current-password" placeholder="Escribe tu contraseña" required minlength="4"><button type="button" id="togglePassword" aria-label="Mostrar contraseña">◉</button></div><div class="password-wrap confirm-wrap" id="confirmWrap" hidden><input id="confirmPasswordInput" type="password" autocomplete="new-password" placeholder="Confirma tu contraseña" minlength="4"></div><p class="login-error" id="loginError" role="alert"></p><button class="button button-primary login-submit" id="loginSubmit" type="submit">Entrar a mi espacio <span>→</span></button>
+<div class="login-recovery-actions"><button type="button" id="recoverPasswordButton" class="login-recovery-link" hidden>¿Olvidaste tu contraseña?</button><button type="button" id="cancelRecoveryButton" class="login-recovery-link" hidden>Volver al inicio de sesión</button></div>
+</form><p class="local-note"><span>▣</span> Privado y guardado en este dispositivo</p></section>
+    </div>
+
+    <div class="modal-backdrop" id="movementModal" hidden><section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="movementModalTitle"><button class="modal-close" data-close-modal aria-label="Cerrar">×</button><p class="eyebrow">ANOTA CADA DETALLE</p><h2 id="movementModalTitle">Nuevo movimiento</h2><p class="modal-subtitle">Registra tus ingresos y gastos personales.</p><form id="movementForm"><div class="type-switch"><button type="button" class="type-option active" data-type="expense">Gasto <span>↗</span></button><button type="button" class="type-option" data-type="income">Ingreso <span>↙</span></button></div><input type="hidden" id="movementType" value="expense"><label for="movementDescription">Descripción</label><input id="movementDescription" class="form-control" type="text" placeholder="Ej. Supermercado, salario…" maxlength="80" required><div class="form-two-col"><div><label for="movementAmount">Importe</label><div class="amount-input"><span>$</span><input id="movementAmount" type="number" min="0.01" step="0.01" placeholder="0.00" required></div></div><div><label for="movementDate">Fecha</label><input id="movementDate" class="form-control" type="date" required></div></div>
+<label for="movementPaymentMethod">Medio de pago</label><select id="movementPaymentMethod" class="form-control"><option value="cash">Contado</option><option value="debit">Débito</option><option value="credit">Tarjeta de crédito</option></select>
+<div id="installmentField" class="installment-field" hidden><label for="movementInstallments">Cantidad de cuotas</label><input id="movementInstallments" class="form-control" type="number" min="1" max="120" step="1" value="1" inputmode="numeric"></div>
+<label for="movementCategory">Categoría</label><select id="movementCategory" class="form-control"><option>Vivienda</option><option>Servicios</option><option>Alimentación</option><option>Transporte</option><option>Salud</option><option>Educación</option><option>Deudas</option><option>Suscripciones</option><option>Entretenimiento</option><option>Compras personales</option><option>Salario</option><option>Ingreso extra</option><option>Ahorro</option><option>Otro</option></select>
+<label for="movementNotes">Nota <span class="optional">(opcional)</span></label><textarea id="movementNotes" class="form-control" rows="2" placeholder="Un detalle que quieras recordar…" maxlength="200"></textarea><button class="button button-primary modal-submit" type="submit">Guardar movimiento <span>✓</span></button></form></section></div>
+
+    <div class="modal-backdrop" id="commitmentModal" hidden><section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="commitmentModalTitle"><button class="modal-close" data-close-commitment aria-label="Cerrar">×</button><p class="eyebrow">ORGANIZA TUS PAGOS</p><h2 id="commitmentModalTitle">Nuevo compromiso</h2><p class="modal-subtitle">Renta, servicios, deudas, suscripciones y más.</p><form id="commitmentForm"><label for="commitmentName">Nombre del compromiso</label><input id="commitmentName" class="form-control" type="text" placeholder="Ej. Renta, internet…" maxlength="70" required><div class="form-two-col"><div><label for="commitmentAmount">Importe mensual</label><div class="amount-input"><span>$</span><input id="commitmentAmount" type="number" min="0.01" step="0.01" placeholder="0.00" required></div></div><div><label for="commitmentDueDay">Día de vencimiento</label><input id="commitmentDueDay" class="form-control" type="number" min="1" max="31" placeholder="Ej. 15" required></div></div><label for="commitmentCategory">Categoría</label><select id="commitmentCategory" class="form-control"><option>Vivienda</option><option>Servicios</option><option>Deudas</option><option>Suscripciones</option><option>Salud</option><option>Educación</option><option>Otro</option></select>
+<label for="commitmentNotes">Nota <span class="optional">(opcional)</span></label><textarea id="commitmentNotes" class="form-control" rows="2" placeholder="Referencia o recordatorio…" maxlength="200"></textarea><button class="button button-primary modal-submit" type="submit">Guardar compromiso <span>✓</span></button></form></section></div>
+
+    <div class="toast" id="toast" role="status"></div>
+</body>
+</html>
